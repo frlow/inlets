@@ -26,7 +26,7 @@ address such as a VPS.
 Example: inlets server -p 80 
 Example: inlets server --port 80 --control-port 8080
 
-Note: You can pass the --token argument followed§ by a token value to both the 
+Note: You can pass the --token argument followed by a token value to both the 
 server and client to prevent unauthorized connections to the tunnel.`,
 	RunE: runServer,
 }
