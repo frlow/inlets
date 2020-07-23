@@ -26,7 +26,7 @@ address such as a VPS.
 Example: inlets server -p 80 
 Example: inlets server --port 80 --control-port 8080
 
-Note: You can pass the --token argument followed by a token value to both the 
+Note: You can pass the --token argument followed§ by a token value to both the 
 server and client to prevent unauthorized connections to the tunnel.`,
 	RunE: runServer,
 }
@@ -35,6 +35,7 @@ func init() {
 
 	serverCmd.Flags().IntP("port", "p", 8000, "port for server and for tunnel")
 	serverCmd.Flags().StringP("token", "t", "", "token for authentication")
+	serverCmd.Flags().StringP("auth-server", "a", "", "uri of external authorization service")
 	serverCmd.Flags().Bool("print-token", true, "prints the token in server mode")
 	serverCmd.Flags().StringP("token-from", "f", "", "read the authentication token from a file")
 	serverCmd.Flags().Bool("disable-transport-wrapping", false, "disable wrapping the transport that removes CORS headers for example")
@@ -116,11 +117,17 @@ func runServer(cmd *cobra.Command, _ []string) error {
 		return errors.Wrap(err, "failed to get the 'bind-addr' value.")
 	}
 
+	authServer, err := cmd.Flags().GetString("auth-server")
+	if len(token) > 0 && len(authServer) > 0 {
+		return fmt.Errorf("cannot use both token and auth server")
+	}
+
 	inletsServer := server.Server{
 		Port:        port,
 		ControlPort: controlPort,
 		BindAddr:    bindAddr,
 		Token:       token,
+		AuthServer:  authServer,
 
 		DisableWrapTransport: disableWrapTransport,
 	}

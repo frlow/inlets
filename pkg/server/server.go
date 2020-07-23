@@ -33,6 +33,8 @@ type Server struct {
 	// Token is used to authenticate a client
 	Token string
 
+	AuthServer string
+
 	router router.Router
 	server *remotedialer.Server
 
@@ -131,6 +133,11 @@ func (s *Server) dialerFor(id, host string) remotedialer.Dialer {
 
 func (s *Server) tokenValid(req *http.Request) bool {
 	auth := req.Header.Get("Authorization")
+	if len(s.AuthServer)>0{
+		resp, err := http.Get(s.AuthServer)
+		if err!=nil {return false}
+		return resp.StatusCode == 200
+	}
 	return len(s.Token) == 0 || subtle.ConstantTimeCompare([]byte(auth), []byte("Bearer "+s.Token)) == 1
 }
 
