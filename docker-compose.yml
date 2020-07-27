@@ -1,0 +1,5 @@
+version: '3'
+services:
+  inlets:
+    image: docker.fredriklowenhamn.se/easyserver-inlets
+    build: .

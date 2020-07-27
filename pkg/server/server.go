@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -133,9 +134,20 @@ func (s *Server) dialerFor(id, host string) remotedialer.Dialer {
 
 func (s *Server) tokenValid(req *http.Request) bool {
 	auth := req.Header.Get("Authorization")
-	if len(s.AuthServer)>0{
-		resp, err := http.Get(s.AuthServer)
-		if err!=nil {return false}
+	if len(s.AuthServer) > 0 {
+		client := &http.Client{}
+		authReq, err := http.NewRequest("GET", s.AuthServer, nil)
+		if err != nil {
+			return false
+		}
+		for key, value := range req.Header {
+			authReq.Header.Add(key, strings.Join(value, "; "))
+		}
+
+		resp, err := client.Do(authReq)
+		if err != nil {
+			return false
+		}
 		return resp.StatusCode == 200
 	}
 	return len(s.Token) == 0 || subtle.ConstantTimeCompare([]byte(auth), []byte("Bearer "+s.Token)) == 1

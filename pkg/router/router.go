@@ -53,6 +53,12 @@ func (r *Router) Lookup(req *http.Request) *Route {
 
 	targets := r.domains[req.Host]
 	if len(targets) == 0 {
+		parts := strings.Split(req.Host, ".")
+		parts = parts[1:]
+		key := strings.Join(parts, ".")
+		targets = r.domains[key]
+	}
+	if len(targets) == 0 {
 		targets = r.domains[""]
 	}
 	if len(targets) == 0 {
