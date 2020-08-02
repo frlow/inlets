@@ -20,9 +20,10 @@ ARG OPTS
 
 # add user in this stage because it cannot be done in next stage which is built from scratch
 # in next stage we'll copy user and group information from this stage
-RUN env ${OPTS} CGO_ENABLED=0 go build -ldflags "-s -w -X main.GitCommit=${GIT_COMMIT} -X main.Version=${VERSION}" -a -installsuffix cgo -o /usr/bin/inlets \
-    && addgroup -S app \
-    && adduser -S -g app app
+RUN addgroup --system app \
+        && adduser --system --group app
+# RUN env ${OPTS} CGO_ENABLED=0 go build -ldflags "-s -w -X main.GitCommit=${GIT_COMMIT} -X main.Version=${VERSION}" -a -installsuffix cgo -o /usr/bin/inlets
+RUN env ${OPTS} CGO_ENABLED=0 go build -installsuffix cgo -o /usr/bin/inlets
 
 FROM scratch
 

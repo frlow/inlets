@@ -1,0 +1,13 @@
+FROM golang:1.13 as build
+RUN addgroup --system app \
+        && adduser --system --group app
+
+FROM scratch
+ADD inlets-arm64 /usr/bin/inlets
+COPY --from=build /etc/passwd /etc/group /etc/
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+USER app
+EXPOSE 80
+
+VOLUME /tmp/
